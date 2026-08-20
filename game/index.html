@@ -117,7 +117,8 @@
 
   <!-- Game logic -->
   <script src="/game/game.js" defer></script>
-  <script src="/game/camp-scene.js" defer></script>
+  <!-- Decorative world renderer: it must not hold up DOM readiness. -->
+  <script src="/game/camp-scene.js" async></script>
 
   <!-- Easter egg: this page is intentionally not in the nav, and intentionally
        does NOT load pages.js / nav.js / nav-layout.js. Visitors only reach
