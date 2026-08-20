@@ -17,7 +17,11 @@
     // Persist BOTH 'light' and 'dark' explicitly. Storing nothing means
     // "user has no preference, follow OS" — which would override an explicit
     // light choice on the next page if the OS prefers dark.
-    localStorage.setItem('theme', value);
+    try {
+      localStorage.setItem('theme', value);
+    } catch {
+      // Theme changes still work when storage is blocked or unavailable.
+    }
 
     // Reflect on the toggle if present
     const btn = document.getElementById('themeToggle');
