@@ -1,5 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const webkitPreload = process.env.PLAYWRIGHT_WEBKIT_LD_PRELOAD;
+const webkitLaunchOptions = webkitPreload
+  ? { env: { ...process.env, LD_PRELOAD: webkitPreload } }
+  : undefined;
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -23,7 +28,10 @@ export default defineConfig({
     },
     {
       name: 'webkit-desktop',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        ...devices['Desktop Safari'],
+        ...(webkitLaunchOptions ? { launchOptions: webkitLaunchOptions } : {}),
+      },
       grepInvert: /@mobile/,
     },
     {
@@ -33,7 +41,10 @@ export default defineConfig({
     },
     {
       name: 'webkit-mobile',
-      use: { ...devices['iPhone 14'] },
+      use: {
+        ...devices['iPhone 14'],
+        ...(webkitLaunchOptions ? { launchOptions: webkitLaunchOptions } : {}),
+      },
       grepInvert: /@desktop/,
     },
   ],

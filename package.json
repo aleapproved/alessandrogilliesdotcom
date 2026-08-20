@@ -7,7 +7,8 @@
   "scripts": {
     "serve": "http-server -p 8000 -c-1 --silent",
     "test": "npm run lint && npm run test:e2e",
-    "test:e2e": "playwright test",
+    "test:e2e": "bash scripts/run-playwright.sh",
+    "setup:playwright-webkit": "bash scripts/install-playwright-webkit-compat.sh",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html",
     "lint:js": "eslint .",
     "lint:css": "stylelint \"**/*.css\" --ignore-path .gitignore",
