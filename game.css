@@ -103,8 +103,29 @@ body[data-page="game"] > main { position: relative; z-index: 1; }
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  background:
+    radial-gradient(circle at 72% 18%, rgb(255 234 180 / .58) 0 3%, transparent 4.5%),
+    linear-gradient(180deg, #6f9fd0 0%, #b8ced4 50%, #4d864c 100%);
 }
-.camp-illustration { display: block; width: 100%; height: 100%; }
+.camp-scene::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 56%, rgb(43 29 16 / .14) 100%);
+  content: "";
+  pointer-events: none;
+}
+.camp-canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+[data-theme="dark"] .camp-scene {
+  background:
+    radial-gradient(circle at 72% 18%, rgb(224 177 92 / .36) 0 3%, transparent 4.5%),
+    linear-gradient(180deg, #172a44 0%, #334b55 50%, #2d5b39 100%);
+}
 .game-grid {
   position: relative;
   z-index: 1;
@@ -192,42 +213,6 @@ body[data-page="game"] > main { position: relative; z-index: 1; }
 .camp-build__cost { color: var(--ar-gold-bright); font-size: .9rem; white-space: nowrap; }
 .camp-build__button:disabled .camp-build__cost { color: var(--ar-ink-faint); }
 .camp-build__hint { margin: .55rem 0 0; color: var(--ar-ink-soft); font-size: .9rem; line-height: 1.35; }
-
-.camp-sky { fill: var(--camp-sky); }
-.camp-sun { fill: var(--camp-sun); }
-.camp-mountain--far { fill: var(--camp-mountain-far); }
-.camp-mountain--near { fill: var(--camp-mountain-near); }
-.camp-mountain__facet--far { fill: color-mix(in oklab, var(--camp-mountain-far) 72%, var(--camp-mountain-near)); }
-.camp-mountain__facet--near { fill: color-mix(in oklab, var(--camp-mountain-near) 76%, var(--camp-mountain-far)); }
-.camp-ground { fill: var(--camp-ground); }
-.camp-ground__shade { fill: var(--camp-ground-dark); opacity: .5; }
-.camp-ground__shade--light { fill: var(--camp-ground-light); opacity: .45; }
-.camp-path { fill: var(--camp-path); opacity: .8; }
-.camp-tree__crown { fill: var(--camp-tree); }
-.camp-tree__crown--dark { fill: var(--camp-tree-dark); }
-.camp-tree__trunk { fill: var(--camp-trunk); }
-.camp-fire__stone { fill: var(--camp-stone); }
-.camp-fire__stone:nth-child(2) { fill: var(--camp-stone-dark); }
-.camp-fire__flame { fill: var(--camp-fire); }
-.camp-stage { opacity: 0; transform: translateY(8px); transform-box: fill-box; transform-origin: center bottom; transition: opacity 180ms ease, transform 180ms ease; }
-.camp-scene[data-wood-stage="1"] .camp-stage--lean-to,
-.camp-scene[data-wood-stage="2"] .camp-stage--hut,
-.camp-scene[data-wood-stage="3"] .camp-stage--cabin { opacity: 1; transform: translateY(0); }
-.camp-structure__shadow { fill: var(--camp-shadow); }
-.camp-structure__back,
-.camp-structure__wall { fill: var(--camp-structure); }
-.camp-structure__roof,
-.camp-structure__gable { fill: var(--camp-roof); }
-.camp-structure__door { fill: var(--camp-structure-dark); }
-.camp-structure__window { fill: var(--camp-window); }
-.camp-structure__chimney,
-.camp-structure__chimney-cap { fill: var(--camp-structure-dark); }
-.camp-structure__porch { fill: var(--camp-structure-dark); }
-.camp-structure__beam { stroke: var(--camp-structure-dark); stroke-linecap: round; stroke-width: 8; }
-
-@media (prefers-reduced-motion: reduce) {
-  .camp-stage { transition: none; }
-}
 
 .progress {
   height: 12px;

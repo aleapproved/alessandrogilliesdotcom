@@ -23,6 +23,15 @@ test('resource nodes render flat-shaded icons', async ({ page }) => {
   await expect(page.locator('.node[data-kind="fish"] .node-graphic--fish')).toHaveCount(1);
 });
 
+test('camp backdrop is a rendered canvas with a graceful fallback', async ({ page }) => {
+  const canvas = page.locator('#campCanvas');
+  await expect(canvas).toHaveAttribute('data-renderer', /^(webgl|fallback)$/);
+
+  const size = await canvas.evaluate(el => ({ width: el.width, height: el.height }));
+  expect(size.width).toBeGreaterThan(0);
+  expect(size.height).toBeGreaterThan(0);
+});
+
 test('arena fills the viewport down to the 24px bottom gap', async ({ page }) => {
   await page.waitForLoadState('load');
   const { top, height } = await page.locator('#arena').evaluate(el => {
@@ -62,6 +71,7 @@ test('wood can build the first camp upgrade and persist it', async ({ page }) =>
   await page.locator('#buildButton').click();
 
   await expect(page.locator('#campScene')).toHaveAttribute('data-wood-stage', '1');
+  await expect(page.locator('#campCanvas')).toHaveAttribute('data-stage-rendered', '1');
   await expect(page.locator('#camp-title')).toHaveText('the lean-to');
   await expect(page.locator('#wood-count')).toHaveText('0');
   await expect(page.locator('#buildButton')).toContainText('build a small hut');
@@ -69,4 +79,21 @@ test('wood can build the first camp upgrade and persist it', async ({ page }) =>
   await page.reload();
   await expect(page.locator('#campScene')).toHaveAttribute('data-wood-stage', '1');
   await expect(page.locator('#wood-count')).toHaveText('0');
+});
+
+test('saved cabin progress selects the highest camp render', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('mini-skill-state-v1', JSON.stringify({
+      wood: { lvl: 1, xp: 0, next: 10 },
+      mine: { lvl: 1, xp: 0, next: 10 },
+      fish: { lvl: 1, xp: 0, next: 10 },
+      resources: { wood: 0 },
+      camp: { woodStage: 3 }
+    }));
+  });
+  await page.reload();
+
+  await expect(page.locator('#camp-title')).toHaveText('the wooden cabin');
+  await expect(page.locator('#campScene')).toHaveAttribute('data-wood-stage', '3');
+  await expect(page.locator('#campCanvas')).toHaveAttribute('data-stage-rendered', '3');
 });

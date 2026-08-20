@@ -49,71 +49,7 @@
 
     <section class="camp-world" aria-label="camp world">
       <div class="camp-scene" id="campScene" data-wood-stage="0" aria-hidden="true">
-        <svg class="camp-illustration" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice" focusable="false">
-          <rect class="camp-sky" width="1200" height="760"></rect>
-          <circle class="camp-sun" cx="930" cy="125" r="52"></circle>
-          <polygon class="camp-mountain camp-mountain--far" points="0,350 190,170 360,330 505,145 735,350"></polygon>
-          <polygon class="camp-mountain__facet camp-mountain__facet--far" points="190,170 360,330 255,280"></polygon>
-          <polygon class="camp-mountain camp-mountain--near" points="420,390 650,175 845,360 1015,205 1200,375 1200,760 420,760"></polygon>
-          <polygon class="camp-mountain__facet camp-mountain__facet--near" points="650,175 845,360 735,282"></polygon>
-          <polygon class="camp-ground" points="0,430 180,380 360,430 540,390 720,430 900,380 1200,430 1200,760 0,760"></polygon>
-          <polygon class="camp-ground__shade" points="0,510 210,455 425,510 260,565 0,545"></polygon>
-          <polygon class="camp-ground__shade camp-ground__shade--light" points="770,455 1010,420 1200,465 1200,520 1000,480 830,515"></polygon>
-          <polygon class="camp-path" points="630,760 660,640 750,555 820,490 900,445 810,560 850,760"></polygon>
-
-          <g class="camp-tree camp-tree--left" transform="translate(75 270)">
-            <polygon class="camp-tree__crown" points="42,0 0,88 24,88 5,139 79,139 58,88 84,88"></polygon>
-            <polygon class="camp-tree__crown camp-tree__crown--dark" points="42,0 42,139 79,139 58,88 84,88"></polygon>
-            <rect class="camp-tree__trunk" x="35" y="130" width="14" height="76"></rect>
-          </g>
-          <g class="camp-tree camp-tree--right" transform="translate(1030 245) scale(1.2)">
-            <polygon class="camp-tree__crown" points="42,0 0,88 24,88 5,139 79,139 58,88 84,88"></polygon>
-            <polygon class="camp-tree__crown camp-tree__crown--dark" points="42,0 42,139 79,139 58,88 84,88"></polygon>
-            <rect class="camp-tree__trunk" x="35" y="130" width="14" height="76"></rect>
-          </g>
-
-          <g class="camp-fire" transform="translate(505 505)">
-            <polygon class="camp-fire__stone" points="0,52 18,38 42,42 54,61 37,76 12,71"></polygon>
-            <polygon class="camp-fire__stone" points="52,60 70,43 95,46 108,64 91,78 65,75"></polygon>
-            <path class="camp-fire__flame" d="M53 60 C26 38 49 19 66 0 C64 27 91 28 85 52 C82 67 66 74 53 60 Z"></path>
-          </g>
-
-          <g class="camp-stage camp-stage--lean-to">
-            <polygon class="camp-structure__shadow" points="650,579 837,579 895,598 696,598"></polygon>
-            <polygon class="camp-structure__back" points="648,477 758,374 758,570 648,570"></polygon>
-            <polygon class="camp-structure__roof" points="620,477 758,340 895,477"></polygon>
-            <line class="camp-structure__beam" x1="648" y1="477" x2="758" y2="374"></line>
-            <line class="camp-structure__beam" x1="758" y1="374" x2="895" y2="477"></line>
-            <line class="camp-structure__beam" x1="758" y1="374" x2="758" y2="570"></line>
-          </g>
-
-          <g class="camp-stage camp-stage--hut">
-            <polygon class="camp-structure__shadow" points="590,588 905,588 966,607 648,607"></polygon>
-            <rect class="camp-structure__wall" x="610" y="410" width="300" height="180"></rect>
-            <polygon class="camp-structure__roof" points="575,415 760,275 945,415"></polygon>
-            <rect class="camp-structure__chimney" x="842" y="302" width="30" height="86"></rect>
-            <polygon class="camp-structure__chimney-cap" points="834,302 880,302 872,291 842,291"></polygon>
-            <rect class="camp-structure__door" x="735" y="475" width="62" height="115"></rect>
-            <rect class="camp-structure__window" x="650" y="455" width="48" height="48"></rect>
-            <rect class="camp-structure__window" x="822" y="455" width="48" height="48"></rect>
-            <line class="camp-structure__beam" x1="610" y1="410" x2="910" y2="410"></line>
-          </g>
-
-          <g class="camp-stage camp-stage--cabin">
-            <polygon class="camp-structure__shadow" points="515,622 960,622 1030,643 565,643"></polygon>
-            <rect class="camp-structure__wall" x="545" y="350" width="390" height="272"></rect>
-            <polygon class="camp-structure__roof" points="505,355 740,180 975,355"></polygon>
-            <polygon class="camp-structure__gable" points="645,355 740,283 835,355"></polygon>
-            <rect class="camp-structure__chimney" x="861" y="213" width="36" height="142"></rect>
-            <polygon class="camp-structure__chimney-cap" points="852,213 906,213 897,201 863,201"></polygon>
-            <rect class="camp-structure__door" x="705" y="480" width="72" height="142"></rect>
-            <rect class="camp-structure__window" x="590" y="445" width="58" height="58"></rect>
-            <rect class="camp-structure__window" x="834" y="445" width="58" height="58"></rect>
-            <rect class="camp-structure__porch" x="665" y="602" width="152" height="20"></rect>
-            <line class="camp-structure__beam" x1="545" y1="410" x2="935" y2="410"></line>
-            <line class="camp-structure__beam" x1="545" y1="470" x2="935" y2="470"></line>
-          </g>
-        </svg>
+        <canvas class="camp-canvas" id="campCanvas" aria-hidden="true"></canvas>
       </div>
 
       <div class="game-grid">
@@ -181,6 +117,7 @@
 
   <!-- Game logic -->
   <script src="/game/game.js" defer></script>
+  <script src="/game/camp-scene.js" defer></script>
 
   <!-- Easter egg: this page is intentionally not in the nav, and intentionally
        does NOT load pages.js / nav.js / nav-layout.js. Visitors only reach
