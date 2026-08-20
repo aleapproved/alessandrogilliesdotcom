@@ -64,6 +64,19 @@ a {
   text-decoration: none;
 }
 
+/* Navigation fallback shown only when JavaScript is unavailable. */
+.noscript-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem 1rem;
+  margin: 1.5rem 0;
+}
+.noscript-nav a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+
 /* ---------- Theme toggle ---------- */
 .theme-toggle {
   position: fixed; top: 1rem; right: 1rem; z-index: 30;
