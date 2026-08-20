@@ -1,6 +1,8 @@
 /* Game page only: the arena fills the viewport when there is room, while
    short screens remain scrollable instead of clipping the game. */
 html { overflow-y: auto; }
+body[data-page="game"] { background: var(--camp-sky); }
+body[data-page="game"] > main { position: relative; z-index: 1; }
 
 :root {
   --camp-sky: #dcecff;
@@ -44,13 +46,13 @@ html { overflow-y: auto; }
 .camp-world {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: var(--camp-sky);
+  background: color-mix(in oklab, var(--camp-sky) 24%, transparent);
 }
 .camp-scene {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
