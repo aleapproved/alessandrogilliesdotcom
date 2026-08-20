@@ -30,6 +30,8 @@ npm test
 
 The setup is only needed on hosts with this WebKit dependency mismatch. It does not install packages system-wide or require `sudo`.
 
+On this compatibility path, the local WPE WebKit runner also disables accelerated compositing to avoid a reproducible Mesa/EGL shutdown crash on Fedora/Nobara. WebKit coverage remains enabled; hosted environments without the compatibility libraries keep their default rendering mode.
+
 ## Deployment
 
 The repository root is the Cloudflare Pages publish directory and has no build step. `_headers` contains the production HTTP security headers; Cloudflare Pages parses that file during deployment.

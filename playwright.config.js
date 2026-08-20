@@ -1,8 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const webkitPreload = process.env.PLAYWRIGHT_WEBKIT_LD_PRELOAD;
-const webkitLaunchOptions = webkitPreload
-  ? { env: { ...process.env, LD_PRELOAD: webkitPreload } }
+const webkitDisableAcceleratedCompositing = process.env.PLAYWRIGHT_WEBKIT_DISABLE_ACCELERATED_COMPOSITING === '1';
+const webkitLaunchOptions = webkitPreload || webkitDisableAcceleratedCompositing
+  ? {
+      ...(webkitDisableAcceleratedCompositing ? { args: ['--features=-AcceleratedCompositing'] } : {}),
+      ...(webkitPreload ? { env: { ...process.env, LD_PRELOAD: webkitPreload } } : {}),
+    }
   : undefined;
 
 export default defineConfig({
