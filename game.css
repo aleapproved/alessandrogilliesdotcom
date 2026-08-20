@@ -1,5 +1,6 @@
-/* Game page only: arena fills the viewport; no vertical scroll. */
-html { overflow-y: hidden; }
+/* Game page only: the arena fills the viewport when there is room, while
+   short screens remain scrollable instead of clipping the game. */
+html { overflow-y: auto; }
 
 /* 2-column layout that collapses on small screens */
 .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -51,11 +52,11 @@ html { overflow-y: hidden; }
   caret-color: transparent;
 }
 
-/* Make sure no UA focus ring/shadow shows on tap */
-.node:focus,
+/* Remove the tap-only UA decoration while preserving keyboard focus. */
+.node:focus:not(:focus-visible),
 .node:active {
-  outline: none !important;
-  box-shadow: none !important;
+  outline: none;
+  box-shadow: none;
 }
 
 /* Belt-and-braces: suppress tap highlight on ancestors too */

@@ -98,7 +98,7 @@
     el.dataset.kind = kind;
     el.addEventListener('click', () => bump(kind));
     arena.appendChild(el);
-    placeNode(kind);
+    placeNode(kind, true);
     return el;
   }
 
@@ -121,13 +121,14 @@
     return isCrit;
   }
 
-  // Place node based on its final size (including crit if any)
-  function placeNode(kind){
+  // Place node based on its final size (including its current crit state).
+  // Re-roll only when a node is created or clicked, not when its container
+  // changes size.
+  function placeNode(kind, rerollCrit = false){
     const el = arena.querySelector(`[data-kind="${kind}"]`);
     if (!el) return;
 
-    // Decide crit FIRST so measurement reflects final size
-    rollCrit(el);
+    if (rerollCrit) rollCrit(el);
 
     // Temporarily position at (0,0) to measure current rendered size
     el.style.left = '0px'; el.style.top = '0px';
@@ -222,7 +223,7 @@
     }
 
     // Reposition and re-roll crit
-    placeNode(kind);
+    placeNode(kind, true);
     save(); // persist after each interaction
   }
 

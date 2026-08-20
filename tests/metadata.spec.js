@@ -1,21 +1,41 @@
 import { test, expect } from '@playwright/test';
 
 const INDEXABLE_PAGES = [
-  { path: '/', title: 'Alessandro Gillies — Product Manager' },
-  { path: '/cv/', title: 'Alessandro Gillies — CV' },
-  { path: '/contact/', title: 'Alessandro Gillies — Contact' },
-  { path: '/malaphors/', title: 'Alessandro Gillies — Malaphors' },
+  {
+    path: '/',
+    title: 'Alessandro Gillies — Product Manager',
+    description: 'Alessandro Gillies is a product manager who brings together user needs and business goals to create great products.',
+  },
+  {
+    path: '/cv/',
+    title: 'Alessandro Gillies — CV',
+    description: 'The CV of Alessandro Gillies, a product manager with experience across digital delivery, strategy, policy, and product management.',
+  },
+  {
+    path: '/contact/',
+    title: 'Alessandro Gillies — Contact',
+    description: 'Contact Alessandro Gillies, a product manager working across user needs, business goals, and digital delivery.',
+  },
+  {
+    path: '/malaphors/',
+    title: 'Alessandro Gillies — Malaphors',
+    description: 'A collection of malaphors and mixed-up idioms by Alessandro Gillies.',
+  },
 ];
 
 const HIDDEN_PAGES = [
-  { path: '/game/', title: 'Alessandro Gillies — Game' },
+  {
+    path: '/game/',
+    title: 'Alessandro Gillies — Game',
+    description: 'A small interactive skill game by Alessandro Gillies.',
+  },
 ];
 
 const ALL_PAGES = [...INDEXABLE_PAGES, ...HIDDEN_PAGES];
 
 const BASE = 'https://alessandrogillies.com';
 
-for (const { path, title } of ALL_PAGES) {
+for (const { path, title, description } of ALL_PAGES) {
   test(`${path} has all social/SEO metadata`, async ({ page }, testInfo) => {
     test.skip(
       testInfo.project.name !== 'chromium-desktop',
@@ -31,22 +51,17 @@ for (const { path, title } of ALL_PAGES) {
     const pageTitle = await page.title();
     expect(pageTitle).toBe(title);
 
+    expect(await metaContent(page, 'description')).toBe(description);
     expect(await ogContent(page, 'og:title')).toBe(title);
+    expect(await ogContent(page, 'og:description')).toBe(description);
     expect(await ogContent(page, 'og:url')).toBe(`${BASE}${path}`);
     expect(await ogContent(page, 'og:image')).toBe(`${BASE}/social-card.jpg`);
     expect(await ogContent(page, 'og:type')).toBe('website');
 
     expect(await twitterContent(page, 'twitter:card')).toBe('summary_large_image');
     expect(await twitterContent(page, 'twitter:title')).toBe(title);
+    expect(await twitterContent(page, 'twitter:description')).toBe(description);
     expect(await twitterContent(page, 'twitter:image')).toBe(`${BASE}/social-card.jpg`);
-
-    // Descriptions are intentionally omitted — we let chat previews show
-    // image+title only and let Google auto-generate search snippets from
-    // page content. Re-introducing a description here is a deliberate
-    // editorial choice, not an accidental drift.
-    await expect(page.locator('meta[name="description"]')).toHaveCount(0);
-    await expect(page.locator('meta[property="og:description"]')).toHaveCount(0);
-    await expect(page.locator('meta[name="twitter:description"]')).toHaveCount(0);
   });
 }
 
@@ -103,6 +118,10 @@ test('home page has JSON-LD Person schema', async ({ page }) => {
 
 async function ogContent(page, property) {
   return await page.locator(`meta[property="${property}"]`).getAttribute('content');
+}
+
+async function metaContent(page, name) {
+  return await page.locator(`meta[name="${name}"]`).getAttribute('content');
 }
 
 async function twitterContent(page, name) {
