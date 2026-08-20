@@ -94,27 +94,14 @@
     return Math.max(10, Math.floor(base * Math.pow(growth, level - 1)));
   }
 
-  // ASCII-safe strings
+  // Inline flat-shaded resource icons keep the game self-contained and avoid
+  // platform-dependent emoji rendering.
   const SEP = ' \u2013 '; // en dash
-  const EMOJI = {
-    wood: '\u{1F332}',                                      // tree
-    mine: supportsRockEmoji() ? '\u{1FAA8}' : '\u26F0\uFE0F',// rock or mountain
-    fish: '\u{1F41F}'                                       // fish
+  const NODE_GRAPHICS = {
+    wood: '<svg class="node-graphic node-graphic--wood" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect class="node-graphic__trunk" x="28" y="40" width="8" height="20"></rect><polygon class="node-graphic__leaf" points="32,3 8,34 20,34 11,48 53,48 44,34 56,34"></polygon><polygon class="node-graphic__leaf node-graphic__leaf--dark" points="32,3 32,48 53,48 44,34 56,34"></polygon><polygon class="node-graphic__leaf node-graphic__leaf--light" points="32,12 21,31 30,31"></polygon></svg>',
+    mine: '<svg class="node-graphic node-graphic--mine" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><polygon class="node-graphic__rock" points="8,47 14,24 31,12 51,18 58,39 45,54 21,57"></polygon><polygon class="node-graphic__rock node-graphic__rock--light" points="31,12 51,18 41,34 24,29"></polygon><polygon class="node-graphic__rock node-graphic__rock--dark" points="8,47 24,29 41,34 45,54 21,57"></polygon><polygon class="node-graphic__rock node-graphic__rock--shine" points="19,25 29,17 25,29"></polygon></svg>',
+    fish: '<svg class="node-graphic node-graphic--fish" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><polygon class="node-graphic__fish-tail" points="13,32 2,20 4,32 2,44"></polygon><polygon class="node-graphic__fish-body" points="10,32 19,20 37,17 51,26 54,38 40,47 22,44"></polygon><polygon class="node-graphic__fish-fin" points="27,21 32,10 38,20"></polygon><polygon class="node-graphic__fish-fin node-graphic__fish-fin--lower" points="29,44 34,54 39,44"></polygon><circle class="node-graphic__fish-eye" cx="42" cy="28" r="2.5"></circle><polygon class="node-graphic__fish-shine" points="19,28 31,22 27,29"></polygon></svg>'
   };
-
-  function supportsRockEmoji(){
-    const test = document.createElement('span');
-    test.style.position = 'absolute';
-    test.style.visibility = 'hidden';
-    test.style.fontFamily = '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji","Twemoji Mozilla", system-ui, sans-serif';
-    test.textContent = '\u{1FAA8}';
-    document.body.appendChild(test);
-    const wRock = test.getBoundingClientRect().width;
-    test.textContent = '\u25A1';
-    const wTofu = test.getBoundingClientRect().width;
-    document.body.removeChild(test);
-    return Math.abs(wRock - wTofu) > 0.5;
-  }
 
   // RNG helpers
   function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
@@ -132,12 +119,12 @@
     return {x,y};
   }
 
-  function makeNode(emoji, label, kind){
+  function makeNode(label, kind){
     const el = document.createElement('button');
     el.className = 'node';
     el.setAttribute('aria-label', label);
     el.dataset.baseLabel = label; // remember the clean, non-critical label
-    el.innerHTML = `<span class="glyph">${emoji}</span>`;
+    el.innerHTML = `<span class="glyph">${NODE_GRAPHICS[kind]}</span>`;
     el.dataset.kind = kind;
     el.addEventListener('click', () => bump(kind));
     arena.appendChild(el);
@@ -204,7 +191,7 @@
     const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) return;
 
-    const colors = ['var(--accent)','var(--good)','var(--text)'];
+    const colors = ['var(--ar-gold-bright)', 'var(--ar-forest-leaf)', 'var(--ar-ink-strong)'];
     const n = 10;
     for (let i=0;i<n;i++){
       const bit = document.createElement('div');
@@ -322,9 +309,9 @@
     // load any saved progress before creating UI
     load();
 
-    makeNode(EMOJI.wood, 'tree', 'wood');
-    makeNode(EMOJI.mine, 'rock', 'mine');
-    makeNode(EMOJI.fish, 'fish', 'fish');
+    makeNode('tree', 'wood');
+    makeNode('rock', 'mine');
+    makeNode('fish', 'fish');
     updateStatsUI();
     updateCampUI();
   }
@@ -340,7 +327,7 @@
 
   // Refit the arena on viewport changes. The ResizeObserver below then
   // catches any *actual* arena size change (e.g. orientation flip) and
-  // reposition emojis. This keeps emojis stable when the user resizes
+  // reposition resource nodes. This keeps nodes stable when the user resizes
   // the window in a way that doesn't change the arena.
   window.addEventListener('resize', fitArena);
   window.addEventListener('orientationchange', fitArena);

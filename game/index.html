@@ -53,16 +53,22 @@
           <rect class="camp-sky" width="1200" height="760"></rect>
           <circle class="camp-sun" cx="930" cy="125" r="52"></circle>
           <polygon class="camp-mountain camp-mountain--far" points="0,350 190,170 360,330 505,145 735,350"></polygon>
+          <polygon class="camp-mountain__facet camp-mountain__facet--far" points="190,170 360,330 255,280"></polygon>
           <polygon class="camp-mountain camp-mountain--near" points="420,390 650,175 845,360 1015,205 1200,375 1200,760 420,760"></polygon>
-          <path class="camp-ground" d="M0 405 Q180 350 360 405 T720 400 T1200 410 V760 H0 Z"></path>
-          <path class="camp-path" d="M630 760 Q660 640 750 555 Q820 490 900 445 Q810 560 850 760 Z"></path>
+          <polygon class="camp-mountain__facet camp-mountain__facet--near" points="650,175 845,360 735,282"></polygon>
+          <polygon class="camp-ground" points="0,430 180,380 360,430 540,390 720,430 900,380 1200,430 1200,760 0,760"></polygon>
+          <polygon class="camp-ground__shade" points="0,510 210,455 425,510 260,565 0,545"></polygon>
+          <polygon class="camp-ground__shade camp-ground__shade--light" points="770,455 1010,420 1200,465 1200,520 1000,480 830,515"></polygon>
+          <polygon class="camp-path" points="630,760 660,640 750,555 820,490 900,445 810,560 850,760"></polygon>
 
           <g class="camp-tree camp-tree--left" transform="translate(75 270)">
             <polygon class="camp-tree__crown" points="42,0 0,88 24,88 5,139 79,139 58,88 84,88"></polygon>
+            <polygon class="camp-tree__crown camp-tree__crown--dark" points="42,0 42,139 79,139 58,88 84,88"></polygon>
             <rect class="camp-tree__trunk" x="35" y="130" width="14" height="76"></rect>
           </g>
           <g class="camp-tree camp-tree--right" transform="translate(1030 245) scale(1.2)">
             <polygon class="camp-tree__crown" points="42,0 0,88 24,88 5,139 79,139 58,88 84,88"></polygon>
+            <polygon class="camp-tree__crown camp-tree__crown--dark" points="42,0 42,139 79,139 58,88 84,88"></polygon>
             <rect class="camp-tree__trunk" x="35" y="130" width="14" height="76"></rect>
           </g>
 
@@ -85,6 +91,8 @@
             <polygon class="camp-structure__shadow" points="590,588 905,588 966,607 648,607"></polygon>
             <rect class="camp-structure__wall" x="610" y="410" width="300" height="180"></rect>
             <polygon class="camp-structure__roof" points="575,415 760,275 945,415"></polygon>
+            <rect class="camp-structure__chimney" x="842" y="302" width="30" height="86"></rect>
+            <polygon class="camp-structure__chimney-cap" points="834,302 880,302 872,291 842,291"></polygon>
             <rect class="camp-structure__door" x="735" y="475" width="62" height="115"></rect>
             <rect class="camp-structure__window" x="650" y="455" width="48" height="48"></rect>
             <rect class="camp-structure__window" x="822" y="455" width="48" height="48"></rect>
@@ -96,6 +104,8 @@
             <rect class="camp-structure__wall" x="545" y="350" width="390" height="272"></rect>
             <polygon class="camp-structure__roof" points="505,355 740,180 975,355"></polygon>
             <polygon class="camp-structure__gable" points="645,355 740,283 835,355"></polygon>
+            <rect class="camp-structure__chimney" x="861" y="213" width="36" height="142"></rect>
+            <polygon class="camp-structure__chimney-cap" points="852,213 906,213 897,201 863,201"></polygon>
             <rect class="camp-structure__door" x="705" y="480" width="72" height="142"></rect>
             <rect class="camp-structure__window" x="590" y="445" width="58" height="58"></rect>
             <rect class="camp-structure__window" x="834" y="445" width="58" height="58"></rect>
@@ -109,9 +119,9 @@
       <div class="game-grid">
       <div class="game-info">
         <section class="camp-panel" aria-labelledby="camp-title">
+          <p class="camp-kicker">camp</p>
           <div class="camp-panel__top">
             <div>
-              <p class="camp-kicker">camp</p>
               <h2 id="camp-title">the clearing</h2>
               <p class="camp-description" id="camp-description">A quiet patch of ground with room to grow.</p>
             </div>

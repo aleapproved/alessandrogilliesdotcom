@@ -17,6 +17,12 @@ test('clicking a wood node increases its XP bar', async ({ page }) => {
   expect(after).toBeGreaterThan(before);
 });
 
+test('resource nodes render flat-shaded icons', async ({ page }) => {
+  await expect(page.locator('.node[data-kind="wood"] .node-graphic--wood')).toHaveCount(1);
+  await expect(page.locator('.node[data-kind="mine"] .node-graphic--mine')).toHaveCount(1);
+  await expect(page.locator('.node[data-kind="fish"] .node-graphic--fish')).toHaveCount(1);
+});
+
 test('arena fills the viewport down to the 24px bottom gap', async ({ page }) => {
   await page.waitForLoadState('load');
   const { top, height } = await page.locator('#arena').evaluate(el => {
