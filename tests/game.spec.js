@@ -40,3 +40,27 @@ test('XP state persists across reload', async ({ page }) => {
   const widthAfter = await page.locator('#bar-wood').evaluate(el => parseFloat(el.style.width) || 0);
   expect(widthAfter).toBe(widthBefore);
 });
+
+test('wood can build the first camp upgrade and persist it', async ({ page }) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0.99;
+  });
+  await page.reload();
+
+  const woodNode = page.locator('.node[data-kind="wood"]');
+  for (let i = 0; i < 10; i += 1) await woodNode.dispatchEvent('click');
+
+  await expect(page.locator('#wood-count')).toHaveText('10');
+  await expect(page.locator('#buildButton')).toBeEnabled();
+
+  await page.locator('#buildButton').click();
+
+  await expect(page.locator('#campScene')).toHaveAttribute('data-wood-stage', '1');
+  await expect(page.locator('#camp-title')).toHaveText('the lean-to');
+  await expect(page.locator('#wood-count')).toHaveText('0');
+  await expect(page.locator('#buildButton')).toContainText('build a small hut');
+
+  await page.reload();
+  await expect(page.locator('#campScene')).toHaveAttribute('data-wood-stage', '1');
+  await expect(page.locator('#wood-count')).toHaveText('0');
+});

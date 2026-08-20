@@ -2,9 +2,143 @@
    short screens remain scrollable instead of clipping the game. */
 html { overflow-y: auto; }
 
+:root {
+  --camp-sky: #dcecff;
+  --camp-sun: #f5c86b;
+  --camp-mountain-far: #c2d7e4;
+  --camp-mountain-near: #a5c3c4;
+  --camp-ground: #b6d18f;
+  --camp-path: #ead8a8;
+  --camp-tree: #5f846e;
+  --camp-tree-dark: #466654;
+  --camp-trunk: #8e6d53;
+  --camp-stone: #76808a;
+  --camp-fire: #f29a48;
+  --camp-structure: #b9814e;
+  --camp-structure-dark: #8b5c3f;
+  --camp-roof: #725b4c;
+  --camp-window: #cde6e8;
+  --camp-shadow: color-mix(in oklab, #42505a 25%, transparent);
+}
+
+[data-theme="dark"] {
+  --camp-sky: #17273c;
+  --camp-sun: #e2b965;
+  --camp-mountain-far: #30465a;
+  --camp-mountain-near: #263f46;
+  --camp-ground: #3b5946;
+  --camp-path: #8d7754;
+  --camp-tree: #2d5847;
+  --camp-tree-dark: #1f3d34;
+  --camp-trunk: #72543f;
+  --camp-stone: #59636c;
+  --camp-fire: #e47e3b;
+  --camp-structure: #8e603f;
+  --camp-structure-dark: #6c4636;
+  --camp-roof: #493d3b;
+  --camp-window: #7da6a8;
+  --camp-shadow: color-mix(in oklab, #080d12 45%, transparent);
+}
+
 /* 2-column layout that collapses on small screens */
-.game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.camp-world {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--camp-sky);
+}
+.camp-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.camp-illustration { display: block; width: 100%; height: 100%; }
+.game-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.game-info { display: grid; align-content: start; gap: 1rem; }
 @media (max-width: 860px) { .game-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Expanding camp ---------- */
+.camp-panel,
+.stats {
+  border: 1px solid color-mix(in oklab, var(--line) 80%, transparent);
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--bg) 78%, transparent);
+  backdrop-filter: saturate(1.1) blur(8px);
+  -webkit-backdrop-filter: saturate(1.1) blur(8px);
+}
+.camp-panel { padding: 1rem; }
+.camp-panel__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.camp-kicker {
+  margin: 0 0 .1rem;
+  color: var(--muted);
+  font-size: .85rem;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-transform: lowercase;
+}
+.camp-panel h2 { font-size: clamp(1.35rem, 3vw, 1.8rem); line-height: 1.2; }
+.camp-description { margin: .25rem 0 0; color: var(--muted); font-size: 1rem; line-height: 1.4; }
+.camp-resource { display: flex; align-items: baseline; gap: .3rem; margin: 0; color: var(--muted); white-space: nowrap; }
+.camp-resource__count { color: var(--text); font-size: 1.65rem; font-weight: 700; line-height: 1; }
+.camp-build { margin-top: 1rem; }
+.camp-build__button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: .65rem .75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--bg) 82%, transparent);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.camp-build__button:hover:not(:disabled) { border-color: var(--accent); }
+.camp-build__button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.camp-build__button:disabled { cursor: not-allowed; opacity: .55; }
+.camp-build__cost { color: var(--muted); font-size: .9rem; white-space: nowrap; }
+.camp-build__hint { margin: .45rem 0 0; color: var(--muted); font-size: .9rem; line-height: 1.35; }
+
+.camp-sky { fill: var(--camp-sky); }
+.camp-sun { fill: var(--camp-sun); }
+.camp-mountain--far { fill: var(--camp-mountain-far); }
+.camp-mountain--near { fill: var(--camp-mountain-near); }
+.camp-ground { fill: var(--camp-ground); }
+.camp-path { fill: var(--camp-path); opacity: .7; }
+.camp-tree__crown { fill: var(--camp-tree); }
+.camp-tree__trunk { fill: var(--camp-trunk); }
+.camp-fire__stone { fill: var(--camp-stone); }
+.camp-fire__flame { fill: var(--camp-fire); }
+.camp-stage { opacity: 0; transform: translateY(8px); transform-box: fill-box; transform-origin: center bottom; transition: opacity 180ms ease, transform 180ms ease; }
+.camp-scene[data-wood-stage="1"] .camp-stage--lean-to,
+.camp-scene[data-wood-stage="2"] .camp-stage--hut,
+.camp-scene[data-wood-stage="3"] .camp-stage--cabin { opacity: 1; transform: translateY(0); }
+.camp-structure__shadow { fill: var(--camp-shadow); }
+.camp-structure__back,
+.camp-structure__wall { fill: var(--camp-structure); }
+.camp-structure__roof,
+.camp-structure__gable { fill: var(--camp-roof); }
+.camp-structure__door { fill: var(--camp-structure-dark); }
+.camp-structure__window { fill: var(--camp-window); }
+.camp-structure__porch { fill: var(--camp-structure-dark); }
+.camp-structure__beam { stroke: var(--camp-structure-dark); stroke-linecap: round; stroke-width: 8; }
+
+@media (prefers-reduced-motion: reduce) {
+  .camp-stage { transition: none; }
+}
 
 .progress {
   height: 10px;
@@ -25,6 +159,9 @@ html { overflow-y: auto; }
   position: relative;
   border: 1px solid var(--line);
   border-radius: 16px;
+  background: color-mix(in oklab, var(--bg) 60%, transparent);
+  backdrop-filter: saturate(1.1) blur(4px);
+  -webkit-backdrop-filter: saturate(1.1) blur(4px);
   overflow: hidden;
 }
 

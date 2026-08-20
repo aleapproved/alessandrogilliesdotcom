@@ -1,6 +1,14 @@
 (function(){
   const $ = sel => document.querySelector(sel);
   const arena = $('#arena');
+  const campScene = $('#campScene');
+  const campTitle = $('#camp-title');
+  const campDescription = $('#camp-description');
+  const woodCount = $('#wood-count');
+  const buildButton = $('#buildButton');
+  const buildLabel = $('#build-label');
+  const buildCost = $('#build-cost');
+  const buildHint = $('#build-hint');
 
   // Stats containers (text + pct + bars)
   const textWood = $('#text-wood');
@@ -14,6 +22,33 @@
 
   // ---- persistence ----
   const STORAGE_KEY = 'mini-skill-state-v1';
+  const CAMP_STAGES = [
+    {
+      name: 'the clearing',
+      description: 'A quiet patch of ground with room to grow.',
+      cost: 10,
+      label: 'build a lean-to'
+    },
+    {
+      name: 'the lean-to',
+      description: 'A roof, a fire, and somewhere dry to sleep.',
+      cost: 100,
+      label: 'build a small hut'
+    },
+    {
+      name: 'the small hut',
+      description: 'A proper little home at the edge of the wilds.',
+      cost: 1000,
+      label: 'build a wooden cabin'
+    },
+    {
+      name: 'the wooden cabin',
+      description: 'A sturdy base camp. There is still plenty of world beyond it.',
+      cost: null,
+      label: 'camp complete for now'
+    }
+  ];
+
   function load(){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -26,6 +61,12 @@
           state[k].next = state[k].lvl >= 99 ? 0 : xpForLevel(state[k].lvl);
         }
       });
+      if (saved && saved.resources && Number.isFinite(saved.resources.wood)) {
+        state.resources.wood = Math.max(0, Math.floor(saved.resources.wood));
+      }
+      if (saved && saved.camp && Number.isFinite(saved.camp.woodStage)) {
+        state.camp.woodStage = Math.min(CAMP_STAGES.length - 1, Math.max(0, Math.floor(saved.camp.woodStage)));
+      }
     } catch {
       // ignore corrupt or blocked storage
     }
@@ -40,7 +81,9 @@
   const state = {
     wood: { lvl: 1, xp: 0, next: xpForLevel(1) },
     mine: { lvl: 1, xp: 0, next: xpForLevel(1) },
-    fish: { lvl: 1, xp: 0, next: xpForLevel(1) }
+    fish: { lvl: 1, xp: 0, next: xpForLevel(1) },
+    resources: { wood: 0 },
+    camp: { woodStage: 0 }
   };
 
   // Exponential XP curve, capped at level 99.
@@ -187,6 +230,50 @@
     if (barEl)  barEl.style.width  = `${Math.min(100, percent)}%`;
   }
 
+  function updateCampUI(){
+    const stageIndex = Math.min(CAMP_STAGES.length - 1, Math.max(0, state.camp.woodStage));
+    const stage = CAMP_STAGES[stageIndex];
+    const nextStage = CAMP_STAGES[stageIndex + 1];
+    const wood = state.resources.wood;
+
+    if (campScene) campScene.dataset.woodStage = String(stageIndex);
+    if (campTitle) campTitle.textContent = stage.name;
+    if (campDescription) campDescription.textContent = stage.description;
+    if (woodCount) woodCount.textContent = String(wood);
+
+    if (!buildButton || !buildLabel || !buildCost || !buildHint) return;
+
+    if (!nextStage || stage.cost === null) {
+      buildLabel.textContent = stage.label;
+      buildCost.textContent = '';
+      buildHint.textContent = 'more camp upgrades are waiting to be discovered';
+      buildButton.disabled = true;
+      return;
+    }
+
+    buildLabel.textContent = stage.label;
+    buildCost.textContent = `${stage.cost} wood`;
+    buildButton.disabled = wood < stage.cost;
+    buildHint.textContent = wood >= stage.cost
+      ? 'ready to build'
+      : `chop ${stage.cost - wood} more wood to build`;
+  }
+
+  function buildCamp(){
+    const stage = CAMP_STAGES[state.camp.woodStage];
+    const nextStage = CAMP_STAGES[state.camp.woodStage + 1];
+    if (!stage || !nextStage || stage.cost === null || state.resources.wood < stage.cost) {
+      updateCampUI();
+      return;
+    }
+
+    state.resources.wood -= stage.cost;
+    state.camp.woodStage += 1;
+    updateCampUI();
+    showToast(`${nextStage.name} built!`);
+    save();
+  }
+
   function bump(kind){
     const el = arena.querySelector(`[data-kind="${kind}"]`);
     const s = state[kind];
@@ -201,6 +288,7 @@
 
     const preLvl = s.lvl;
     s.xp += gain;
+    if (kind === 'wood') state.resources.wood += gain;
 
     // Level loop
     while (s.xp >= s.next && s.lvl < 99){
@@ -210,6 +298,7 @@
     }
 
     updateStatsUI();
+    updateCampUI();
 
     // Level-up feedback (toast + subtle confetti from click location)
     if (s.lvl > preLvl) {
@@ -228,7 +317,7 @@
   }
 
   function start(){
-    arena.innerHTML = '';
+    arena.querySelectorAll('.node, .confetti').forEach(el => el.remove());
 
     // load any saved progress before creating UI
     load();
@@ -237,6 +326,7 @@
     makeNode(EMOJI.mine, 'rock', 'mine');
     makeNode(EMOJI.fish, 'fish', 'fish');
     updateStatsUI();
+    updateCampUI();
   }
 
   // Fit arena to remaining viewport height (24px bottom gap)
@@ -260,6 +350,8 @@
     const ro = new ResizeObserver(() => ['wood','mine','fish'].forEach(placeNode));
     ro.observe(arena);
   }
+
+  if (buildButton) buildButton.addEventListener('click', buildCamp);
 
   fitArena();
   start();
