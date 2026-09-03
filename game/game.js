@@ -22,6 +22,9 @@
 
   // ---- persistence ----
   const STORAGE_KEY = 'mini-skill-state-v1';
+  const SKILLS = ['wood', 'mine', 'fish'];
+  const MIN_LEVEL = 1;
+  const MAX_LEVEL = 99;
   const CAMP_STAGES = [
     {
       name: 'the clearing',
@@ -49,18 +52,28 @@
     }
   ];
 
+  function normaliseSkill(savedSkill, fallback) {
+    const isRecord = savedSkill && typeof savedSkill === 'object' && !Array.isArray(savedSkill);
+    const hasValidLevel = isRecord
+      && Number.isInteger(savedSkill.lvl)
+      && savedSkill.lvl >= MIN_LEVEL
+      && savedSkill.lvl <= MAX_LEVEL;
+    const lvl = hasValidLevel ? savedSkill.lvl : fallback.lvl;
+    const next = lvl >= MAX_LEVEL ? 0 : xpForLevel(lvl);
+    const storedXp = hasValidLevel ? savedSkill.xp : null;
+    const xp = Number.isFinite(storedXp) && storedXp >= 0
+      ? Math.min(Math.floor(storedXp), Math.max(0, next - 1))
+      : 0;
+
+    return { lvl, xp: lvl >= MAX_LEVEL ? 0 : xp, next };
+  }
+
   function load(){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw);
-      ['wood','mine','fish'].forEach(k => {
-        if (saved && saved[k]) {
-          state[k].lvl  = Number.isFinite(saved[k].lvl) ? saved[k].lvl : state[k].lvl;
-          state[k].xp   = Number.isFinite(saved[k].xp)  ? saved[k].xp  : state[k].xp;
-          state[k].next = state[k].lvl >= 99 ? 0 : xpForLevel(state[k].lvl);
-        }
-      });
+      SKILLS.forEach(k => { state[k] = normaliseSkill(saved?.[k], state[k]); });
       if (saved && saved.resources && Number.isFinite(saved.resources.wood)) {
         state.resources.wood = Math.max(0, Math.floor(saved.resources.wood));
       }

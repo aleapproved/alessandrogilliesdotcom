@@ -23,43 +23,58 @@
     link.setAttribute('href', href);
   };
 
+  // Prevent any transitions during first paint.
+  document.documentElement.classList.add('no-anim');
+
+  // A blocked storage read must not stop OS-theme detection.
+  let stored = null;
   try {
-    // Prevent any transitions during first paint
-    document.documentElement.classList.add('no-anim');
-
-    // Decide theme before the page paints
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (stored === 'dark' || (!stored && prefersDark)) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
-
-    // Set an initial favicon before paint to avoid grey globe
-    window.__updateFavicon();
-
-    // After the DOM is ready, allow transitions again
-    const enableTransitions = () => {
-      requestAnimationFrame(() => {
-        document.documentElement.classList.remove('no-anim');
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const btn = document.getElementById('themeToggle');
-        if (btn) {
-          btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-          btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-          const icon = btn.querySelector('.theme-toggle__icon');
-          if (icon) icon.textContent = isDark ? '🌕' : '☀️';
-        }
-      });
-    };
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', enableTransitions);
-    } else {
-      enableTransitions();
-    }
+    stored = localStorage.getItem('theme');
   } catch {
-    // Fail closed: remove the guard if anything goes wrong
-    document.documentElement.classList.remove('no-anim');
+    // Treat unavailable storage as no explicit preference.
+  }
+
+  let prefersDark = false;
+  try {
+    prefersDark = typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } catch {
+    // Use light mode when media-query detection is unavailable.
+  }
+
+  const theme = stored === 'dark' || stored === 'light'
+    ? stored
+    : prefersDark ? 'dark' : 'light';
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+
+  // Set an initial favicon before paint to avoid grey globe.
+  try {
+    window.__updateFavicon();
+  } catch {
+    // Favicon setup must not prevent the page from becoming interactive.
+  }
+
+  // After the DOM is ready, allow transitions again.
+  const enableTransitions = () => {
+    requestAnimationFrame(() => {
+      document.documentElement.classList.remove('no-anim');
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const btn = document.getElementById('themeToggle');
+      if (btn) {
+        btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        const icon = btn.querySelector('.theme-toggle__icon');
+        if (icon) icon.textContent = isDark ? '🌕' : '☀️';
+      }
+    });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', enableTransitions);
+  } else {
+    enableTransitions();
   }
 })();

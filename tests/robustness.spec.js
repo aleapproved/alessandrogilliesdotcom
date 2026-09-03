@@ -63,3 +63,62 @@ test('theme toggle remains usable when browser storage is unavailable', async ({
   expect(state.pressed).toBe(state.theme === 'dark' ? 'true' : 'false');
   expect(pageErrors).toEqual([]);
 });
+
+test('theme initialization still detects OS theme when storage reads throw', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.addInitScript(() => {
+    Storage.prototype.getItem = () => {
+      throw new DOMException('blocked', 'SecurityError');
+    };
+    Storage.prototype.setItem = () => {
+      throw new DOMException('blocked', 'SecurityError');
+    };
+  });
+
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+  await page.goto('/');
+
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('#favicon')).toHaveCount(1);
+  await page.click('#themeToggle');
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+  expect(pageErrors).toEqual([]);
+});
+
+test('stored light preference overrides a dark OS theme', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('theme', 'light'));
+  await page.reload();
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+});
+
+test('stored dark preference overrides a light OS theme', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('theme', 'dark'));
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});
+
+test('contact email uses the restrained link movement and reduced-motion rule', async ({ page }) => {
+  const email = page.locator('a[href^="mailto:"]');
+  await page.goto('/contact/');
+
+  await email.focus();
+  const focused = await email.evaluate(el => ({
+    outlineStyle: getComputedStyle(el).outlineStyle,
+    transitionProperty: getComputedStyle(el).transitionProperty,
+  }));
+  expect(focused.outlineStyle).not.toBe('none');
+  expect(focused.transitionProperty).toContain('transform');
+
+  await email.hover();
+  const hoveredTransform = await email.evaluate(el => getComputedStyle(el).transform);
+  expect(hoveredTransform).not.toBe('none');
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const reduced = await email.evaluate(el => getComputedStyle(el).transitionDuration);
+  expect(reduced).toBe('0s');
+});
