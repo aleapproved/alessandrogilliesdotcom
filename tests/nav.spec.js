@@ -2,20 +2,28 @@ import { test, expect } from '@playwright/test';
 
 const PAGES_WITH_NAV = ['/', '/cv/', '/contact/', '/malaphors/'];
 
-test('homepage keeps navigation available without JavaScript', async ({ browser }, testInfo) => {
-  test.skip(
-    testInfo.project.name !== 'chromium-desktop',
-    'The static fallback is identical across browsers; checking once is enough'
-  );
+for (const path of PAGES_WITH_NAV) {
+  test(`${path} keeps navigation available without JavaScript`, async ({ browser }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'chromium-desktop',
+      'The static fallback is identical across browsers; checking once is enough'
+    );
 
-  const context = await browser.newContext({ javaScriptEnabled: false });
-  const page = await context.newPage();
-  await page.goto('/');
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    try {
+      const page = await context.newPage();
+      await page.goto(path);
 
-  await expect(page.locator('.noscript-nav a')).toHaveCount(5);
-  await expect(page.locator('.noscript-nav a[href="/cv/"]')).toHaveText('cv');
-  await context.close();
-});
+      const nav = page.locator('.noscript-nav');
+      await expect(nav).toHaveCount(1);
+      await expect(nav.locator('a')).toHaveCount(5);
+      await expect(nav.locator('a[href="/cv/"]')).toHaveText('cv');
+      await expect(nav.locator('a[href="/game/"]')).toHaveCount(0);
+    } finally {
+      await context.close();
+    }
+  });
+}
 
 for (const path of PAGES_WITH_NAV) {
   test(`${path} shows floating links and no rail @desktop`, async ({ page }) => {
@@ -24,6 +32,7 @@ for (const path of PAGES_WITH_NAV) {
       () => document.querySelectorAll('.floatingLink.ready').length > 0
     );
     await expect(page.locator('#linkRail')).toHaveCount(0);
+    await expect(page.locator('.floatingLink[href="/game/"]')).toHaveCount(0);
     await expect(page.locator('.floatingLink').first()).toBeVisible();
   });
 

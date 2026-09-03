@@ -9,10 +9,12 @@
     "test": "npm run lint && npm run test:e2e",
     "test:e2e": "bash scripts/run-playwright.sh",
     "setup:playwright-webkit": "bash scripts/install-playwright-webkit-compat.sh",
-    "lint": "npm run lint:js && npm run lint:css && npm run lint:html",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:source && npm run lint:headers",
     "lint:js": "eslint .",
     "lint:css": "stylelint \"**/*.css\" --ignore-path .gitignore",
-    "lint:html": "htmlhint \"**/*.html\" --ignore \"node_modules/**,playwright-report/**,test-results/**\""
+    "lint:html": "htmlhint \"**/*.html\" --ignore \"node_modules/**,playwright-report/**,test-results/**\"",
+    "lint:source": "node scripts/check-source-hygiene.mjs",
+    "lint:headers": "node scripts/check-security-headers.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",

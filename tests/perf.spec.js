@@ -2,15 +2,13 @@ import { test, expect } from '@playwright/test';
 
 const PAGES = ['/', '/cv/', '/contact/', '/malaphors/', '/game/'];
 
-// Tight budgets — a 5-page static site on localhost should load in tens of
-// milliseconds. These thresholds catch real regressions (a heavy script, an
-// extra stylesheet doing significant work) while staying loose enough to
-// tolerate occasional localhost noise.
-const DOM_CONTENT_LOADED_MS = 200;
-const LOAD_EVENT_MS = 500;
+// These local-only budgets catch regressions such as a heavy script or extra
+// stylesheet. They are not a real-world production performance audit.
+const LOCALHOST_DOM_CONTENT_LOADED_MS = 200;
+const LOCALHOST_LOAD_EVENT_MS = 500;
 
 for (const path of PAGES) {
-  test(`${path} loads within performance budget`, async ({ page }, testInfo) => {
+  test(`${path} stays within the localhost page-load regression budget`, async ({ page }, testInfo) => {
     test.skip(
       testInfo.project.name !== 'chromium-desktop',
       'Performance budget enforced once on chromium-desktop'
@@ -27,7 +25,7 @@ for (const path of PAGES) {
       };
     });
 
-    expect(timing.domContentLoaded, `domContentLoaded on ${path}`).toBeLessThan(DOM_CONTENT_LOADED_MS);
-    expect(timing.loadEvent, `loadEvent on ${path}`).toBeLessThan(LOAD_EVENT_MS);
+    expect(timing.domContentLoaded, `domContentLoaded on ${path}`).toBeLessThan(LOCALHOST_DOM_CONTENT_LOADED_MS);
+    expect(timing.loadEvent, `loadEvent on ${path}`).toBeLessThan(LOCALHOST_LOAD_EVENT_MS);
   });
 }
