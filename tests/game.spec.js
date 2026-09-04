@@ -40,3 +40,73 @@ test('XP state persists across reload', async ({ page }) => {
   const widthAfter = await page.locator('#bar-wood').evaluate(el => parseFloat(el.style.width) || 0);
   expect(widthAfter).toBe(widthBefore);
 });
+
+test('invalid saved skill values are normalised before rendering', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('mini-skill-state-v1', JSON.stringify({
+      wood: { lvl: 2.5, xp: -10, next: 1 },
+      mine: { lvl: 2, xp: 2.75, next: 1 },
+      fish: { lvl: 2, xp: 999999999, next: 1 },
+    }));
+  });
+  await page.reload();
+
+  const values = await page.evaluate(() => ({
+    wood: {
+      level: document.querySelector('#text-wood').textContent,
+      width: document.querySelector('#bar-wood').style.width,
+    },
+    mine: {
+      level: document.querySelector('#text-mine').textContent,
+      width: document.querySelector('#bar-mine').style.width,
+    },
+    fish: {
+      level: document.querySelector('#text-fish').textContent,
+      width: document.querySelector('#bar-fish').style.width,
+    },
+  }));
+
+  expect(values.wood).toEqual({ level: 'lvl 1', width: '0%' });
+  expect(values.mine).toEqual({ level: 'lvl 2', width: '18%' });
+  expect(values.fish).toEqual({ level: 'lvl 2', width: '90%' });
+});
+
+test('out-of-range and non-integer saved levels fall back safely', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('mini-skill-state-v1', JSON.stringify({
+      wood: { lvl: 0, xp: 10 },
+      mine: { lvl: 100, xp: 10 },
+      fish: { lvl: '2', xp: 10 },
+    }));
+  });
+  await page.reload();
+
+  await expect(page.locator('#text-wood')).toHaveText('lvl 1');
+  await expect(page.locator('#text-mine')).toHaveText('lvl 1');
+  await expect(page.locator('#text-fish')).toHaveText('lvl 1');
+});
+
+test('saved level 99 progress renders a complete bar', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('mini-skill-state-v1', JSON.stringify({
+      wood: { lvl: 99, xp: 999999, next: 1 },
+    }));
+  });
+  await page.reload();
+
+  await expect(page.locator('#text-wood')).toHaveText('lvl 99');
+  const width = await page.locator('#bar-wood').evaluate(el => parseFloat(el.style.width));
+  expect(width).toBe(100);
+});
+
+test('malformed saved game state falls back without page errors', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('mini-skill-state-v1', '{not-json'));
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+  await page.reload();
+
+  await expect(page.locator('#text-wood')).toHaveText('lvl 1');
+  await expect(page.locator('#text-mine')).toHaveText('lvl 1');
+  await expect(page.locator('#text-fish')).toHaveText('lvl 1');
+  expect(pageErrors).toEqual([]);
+});

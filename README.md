@@ -33,3 +33,5 @@ The setup is only needed on hosts with this WebKit dependency mismatch. It does 
 ## Deployment
 
 The repository root is the Cloudflare Pages publish directory and has no build step. `_headers` contains the production HTTP security headers; Cloudflare Pages parses that file during deployment.
+
+`npm run lint` checks the required security-header directives in `_headers` as repository content. That deterministic check does not prove that Cloudflare is serving the same headers in production; deployed responses need a separate post-deployment check.

@@ -13,7 +13,7 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:8000',
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
   },
   projects: [
     {
