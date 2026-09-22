@@ -6,13 +6,16 @@
   "type": "module",
   "scripts": {
     "serve": "http-server -p 8000 -c-1 --silent",
+    "serve:dist": "http-server dist -p 8000 -c-1 --silent",
+    "build": "node scripts/build-site.mjs",
+    "check:dist": "node scripts/check-dist.mjs",
     "test": "npm run lint && npm run test:e2e",
-    "test:e2e": "bash scripts/run-playwright.sh",
+    "test:e2e": "npm run build && npm run check:dist && bash scripts/run-playwright.sh",
     "setup:playwright-webkit": "bash scripts/install-playwright-webkit-compat.sh",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:source && npm run lint:headers",
     "lint:js": "eslint .",
     "lint:css": "stylelint \"**/*.css\" --ignore-path .gitignore",
-    "lint:html": "htmlhint \"**/*.html\" --ignore \"node_modules/**,playwright-report/**,test-results/**\"",
+    "lint:html": "htmlhint \"**/*.html\" --ignore \"node_modules/**,dist/**,playwright-report/**,test-results/**\"",
     "lint:source": "node scripts/check-source-hygiene.mjs",
     "lint:headers": "node scripts/check-security-headers.mjs",
     "check:production": "node scripts/check-production.mjs"

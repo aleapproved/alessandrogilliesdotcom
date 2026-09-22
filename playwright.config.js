@@ -49,9 +49,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run serve',
+    command: 'npm run serve:dist',
     url: 'http://localhost:8000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 30_000,
   },
 });
