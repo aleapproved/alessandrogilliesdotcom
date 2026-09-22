@@ -78,6 +78,18 @@ a {
 }
 
 /* ---------- Theme toggle ---------- */
+.theme-controls {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .4rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+}
+
 .theme-toggle {
   position: fixed; top: 1rem; right: 1rem; z-index: 30;
   background: none;
@@ -90,10 +102,69 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
-.theme-toggle:focus-visible {
+.theme-controls .theme-toggle {
+  position: static;
+}
+
+.theme-reset {
+  padding: .25rem .45rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  color: var(--muted);
+  font: inherit;
+  font-size: .72rem;
+  line-height: 1.25;
+  cursor: pointer;
+}
+
+.theme-reset:hover {
+  color: var(--text);
+}
+
+.theme-status {
+  max-height: 0;
+  padding: 0 .6rem;
+  overflow: hidden;
+  border: 0 solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--bg) 94%, transparent);
+  color: var(--text);
+  font-size: .78rem;
+  line-height: 1.4;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 140ms ease, max-height 140ms ease, padding 140ms ease;
+}
+
+.theme-status.is-visible {
+  max-height: 8rem;
+  padding: .5rem .6rem;
+  border-width: 1px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.theme-toggle:focus-visible,
+.theme-reset:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+@supports not (background: color-mix(in oklab, white 92%, transparent)) {
+  .theme-reset,
+  .theme-status { background: var(--bg); }
+}
+
+@media (max-width: 480px) {
+  .theme-controls {
+    left: 1rem;
+    max-width: none;
+  }
+  .theme-status { width: 100%; box-sizing: border-box; }
+  body.theme-preference-saved .wrap { margin-top: max(10vh, 5.5rem); }
+  body.theme-status-visible .wrap { margin-top: max(10vh, 13rem); }
 }
 
 /* ---------- Wandering links (desktop) ---------- */
@@ -162,6 +233,7 @@ body.rail-active { padding-bottom: 4.5rem; }
 @media (prefers-reduced-motion: reduce) {
   .floatingLink, .in-content-link { transition: none; }
   #linkRail { scroll-behavior: auto; }
+  .theme-status { transition: none; }
 }
 
 /* ---------- CV: unified spacing & typography ---------- */

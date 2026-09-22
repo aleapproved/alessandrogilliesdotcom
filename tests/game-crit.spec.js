@@ -6,7 +6,10 @@ test('crit nodes deliver 5x XP when Math.random is forced low', async ({ page })
   });
 
   await page.goto('/game/');
-  await page.evaluate(() => localStorage.removeItem('mini-skill-state-v1'));
+  await page.evaluate(() => {
+    localStorage.removeItem('mini-skill-state-v1');
+    localStorage.removeItem('mini-skill-persist-v1');
+  });
   await page.reload();
 
   const woodNode = page.locator('.node[data-kind="wood"]');
@@ -25,7 +28,10 @@ test('non-crit nodes deliver 1x XP when Math.random is forced high', async ({ pa
   });
 
   await page.goto('/game/');
-  await page.evaluate(() => localStorage.removeItem('mini-skill-state-v1'));
+  await page.evaluate(() => {
+    localStorage.removeItem('mini-skill-state-v1');
+    localStorage.removeItem('mini-skill-persist-v1');
+  });
   await page.reload();
 
   const woodNode = page.locator('.node[data-kind="wood"]');

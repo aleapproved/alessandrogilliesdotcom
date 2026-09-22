@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Alessandro Gillies — Game</title>
 
-  <!-- Set theme before paint; theme-init.js also creates the favicon link -->
+  <!-- Stable crawler/no-JavaScript icon; theme-init.js adds the dynamic icon. -->
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="96x96">
   <script src="/theme-init.js"></script>
 
   <meta name="color-scheme" content="light dark">
@@ -48,7 +49,7 @@
     </div>
 
     <div class="game-grid">
-      <div>
+      <div class="game-sidebar">
         <dl class="stats" aria-live="polite">
           <dt>woodcutting</dt>
           <dd>
@@ -80,6 +81,17 @@
             </div>
           </dd>
         </dl>
+
+        <section class="storage-controls" aria-label="game progress storage">
+          <div class="storage-controls__actions">
+            <label class="storage-option">
+              <input id="save-progress" type="checkbox">
+              <span>save progress on this device</span>
+            </label>
+            <button class="storage-reset" id="reset-progress" type="button">reset progress</button>
+          </div>
+          <p class="storage-help">This setting, and your progress when saving is on, stay only in this browser until you change or reset them or clear site data. Nothing is sent anywhere.</p>
+        </section>
       </div>
 
       <div>

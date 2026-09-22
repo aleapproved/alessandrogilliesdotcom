@@ -1,6 +1,6 @@
 (function () {
-  // Single source of truth for the favicon SVG. Used here for the initial
-  // pre-paint set, and again from favicon.js on load and theme changes.
+  // Single source of truth for the runtime favicon SVG. The static PNG link
+  // remains in the HTML for crawlers and browsers without JavaScript.
   window.__updateFavicon = function () {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const LETTER = { cv: 'c', malaphors: 'm', game: 'g', contact: '@' };
