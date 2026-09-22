@@ -1,5 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import {
+  EXACT_SECURITY_HEADERS,
+  REQUIRED_CSP_DIRECTIVES,
+  REQUIRED_PERMISSIONS_POLICY_DIRECTIVES,
+  findMissingDirectives,
+} from './security-policy.mjs';
 
 const headersPath = fileURLToPath(new URL('../_headers', import.meta.url));
 const source = await readFile(headersPath, 'utf8');
@@ -25,37 +31,27 @@ function requireHeader(name) {
 function expectHeader(name, expected) {
   const value = requireHeader(name);
   if (value && value !== expected) failures.push(`${name} must be ${expected}; found ${value}`);
-  return value;
 }
 
 const csp = requireHeader('Content-Security-Policy');
-const requiredCspDirectives = [
-  "default-src 'self'",
-  "img-src 'self' data:",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "object-src 'none'",
-  "base-uri 'none'",
-  "form-action 'none'",
-  "frame-ancestors 'none'",
-  'upgrade-insecure-requests',
-];
 if (csp) {
-  const directives = new Set(csp.split(';').map(directive => directive.trim()).filter(Boolean));
-  for (const directive of requiredCspDirectives) {
-    if (!directives.has(directive)) failures.push(`Content-Security-Policy is missing ${directive}`);
+  for (const directive of findMissingDirectives(csp, REQUIRED_CSP_DIRECTIVES, ';')) {
+    failures.push(`Content-Security-Policy is missing ${directive}`);
   }
 }
 
-expectHeader('Strict-Transport-Security', 'max-age=31536000');
-expectHeader('X-Frame-Options', 'DENY');
-expectHeader('X-Content-Type-Options', 'nosniff');
-expectHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+for (const [name, expected] of Object.entries(EXACT_SECURITY_HEADERS)) {
+  expectHeader(name, expected);
+}
+
 const permissions = requireHeader('Permissions-Policy');
 if (permissions) {
-  const directives = new Set(permissions.split(',').map(directive => directive.trim()).filter(Boolean));
-  for (const directive of ['camera=()', 'geolocation=()', 'microphone=()']) {
-    if (!directives.has(directive)) failures.push(`Permissions-Policy is missing ${directive}`);
+  for (const directive of findMissingDirectives(
+    permissions,
+    REQUIRED_PERMISSIONS_POLICY_DIRECTIVES,
+    ','
+  )) {
+    failures.push(`Permissions-Policy is missing ${directive}`);
   }
 }
 

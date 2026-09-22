@@ -14,7 +14,8 @@
     "lint:css": "stylelint \"**/*.css\" --ignore-path .gitignore",
     "lint:html": "htmlhint \"**/*.html\" --ignore \"node_modules/**,playwright-report/**,test-results/**\"",
     "lint:source": "node scripts/check-source-hygiene.mjs",
-    "lint:headers": "node scripts/check-security-headers.mjs"
+    "lint:headers": "node scripts/check-security-headers.mjs",
+    "check:production": "node scripts/check-production.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",

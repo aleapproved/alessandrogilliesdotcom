@@ -34,6 +34,25 @@ test('game page tab order reaches arena nodes', async ({ page }) => {
   expect(node, 'game nodes should be reachable via Tab').toBeTruthy();
 });
 
+test('saved-theme reset control is reachable by keyboard @desktop', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('theme', 'dark'));
+  await page.reload();
+
+  const reset = await tabUntil(page, focused => focused.cls?.includes('theme-reset'));
+  expect(reset, 'forget saved theme should be reachable via Tab').toBeTruthy();
+});
+
+test('game storage controls are reachable by keyboard', async ({ page }) => {
+  await page.goto('/game/');
+
+  const checkbox = await tabUntil(page, focused => focused.id === 'save-progress');
+  expect(checkbox, 'save-progress checkbox should be reachable via Tab').toBeTruthy();
+
+  const reset = await tabUntil(page, focused => focused.id === 'reset-progress');
+  expect(reset, 'reset-progress button should be reachable via Tab').toBeTruthy();
+});
+
 // Press Tab repeatedly until the focused element matches `matcher`, or until
 // we've tried `maxAttempts` times (default 30 — far more than any realistic
 // page would need). Returns the matched element info on success, or null on
@@ -47,6 +66,7 @@ async function tabUntil(page, matcher, maxAttempts = 30) {
       if (!el || el === document.body) return null;
       return {
         tag: el.tagName,
+        id: el.id,
         cls: el.className?.toString(),
         href: el.href,
       };

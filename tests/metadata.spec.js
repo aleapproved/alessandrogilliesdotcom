@@ -112,6 +112,8 @@ test('home page has JSON-LD Person schema', async ({ page }) => {
   const data = JSON.parse(ld);
   expect(data['@type']).toBe('Person');
   expect(data.name).toBe('Alessandro Gillies');
+  expect(data.jobTitle).toBe('Product Manager');
+  expect(data).not.toHaveProperty('worksFor');
   expect(data.url).toBe(`${BASE}/`);
   expect(data.image).toBe(`${BASE}/social-card.jpg`);
 });

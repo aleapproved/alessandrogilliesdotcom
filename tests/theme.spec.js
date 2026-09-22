@@ -35,3 +35,88 @@ for (const path of PAGES) {
     }
   });
 }
+
+test('no saved preference follows a dark operating-system theme', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'Theme state logic is browser-independent');
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/');
+  await page.evaluate(() => localStorage.removeItem('theme'));
+  await page.reload();
+
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('.theme-reset')).toHaveCount(0);
+});
+
+test('no saved preference follows a light operating-system theme', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'Theme state logic is browser-independent');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.evaluate(() => localStorage.removeItem('theme'));
+  await page.reload();
+
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('.theme-reset')).toHaveCount(0);
+});
+
+test('manual theme choice is stored, explained, and restored on reload', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'Theme state logic is browser-independent');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.evaluate(() => localStorage.removeItem('theme'));
+  await page.reload();
+
+  await page.click('#themeToggle');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  expect(await page.evaluate(() => localStorage.getItem('theme'))).toBe('dark');
+  await expect(page.locator('.theme-reset')).toHaveText('forget saved theme');
+  await expect(page.locator('.theme-reset')).toHaveAttribute(
+    'title',
+    'Forget the saved theme and follow your device colour scheme'
+  );
+  await expect(page.locator('.theme-status')).toHaveText(
+    'Theme saved in this browser. “Forget saved theme” removes the preference and follows your device setting.'
+  );
+  await expect(page.locator('.theme-status')).toHaveAttribute('role', 'status');
+  await expect(page.locator('.theme-status')).toHaveAttribute('aria-live', 'polite');
+
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('.theme-reset')).toBeVisible();
+});
+
+test('forgetting a saved theme immediately returns to the device theme', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'Theme state logic is browser-independent');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('theme', 'dark'));
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+  await page.click('.theme-reset');
+
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+  expect(await page.evaluate(() => localStorage.getItem('theme'))).toBeNull();
+  await expect(page.locator('.theme-reset')).toHaveCount(0);
+  await expect(page.locator('.theme-status')).toHaveText(
+    'Theme preference cleared. Following your device setting.'
+  );
+});
+
+test('device theme changes update live only without a saved preference', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'Theme state logic is browser-independent');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.evaluate(() => localStorage.removeItem('theme'));
+  await page.reload();
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+
+  await page.click('#themeToggle');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});
