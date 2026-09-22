@@ -17,7 +17,7 @@ const SCAN_GLOBS = [
   '*.css', '*.js', '*.mjs', '*.html',
   '*/*.css', '*/*.js', '*/*.mjs', '*/*.html',
 ];
-const IGNORE_DIRS = ['node_modules', 'playwright-report', 'test-results', '.git', 'tests'];
+const IGNORE_DIRS = ['node_modules', 'dist', 'playwright-report', 'test-results', '.git', 'tests'];
 
 const paths = new Set();
 for (const pattern of SCAN_GLOBS) {

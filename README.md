@@ -10,7 +10,8 @@ npx playwright install chromium firefox webkit
 npm run serve
 ```
 
-The site is available at `http://localhost:8000`.
+The source site is available at `http://localhost:8000`. The deployment-equivalent server is
+available after a build with `npm run serve:dist`.
 
 ## Checks
 
@@ -18,6 +19,9 @@ The site is available at `http://localhost:8000`.
 npm run lint
 npm test
 ```
+
+`npm test` builds and validates the deployment output before running the full browser suite.
+The browser suite serves `dist/`, not the repository root.
 
 The full browser suite needs the Playwright browser binaries. On Linux CI, install them with `npx playwright install --with-deps chromium firefox webkit`.
 
@@ -44,15 +48,24 @@ Raw HTML exposes the stable 96×96 `/favicon.png` for crawlers and browsers with
 
 ## Deployment
 
-The repository root is the Cloudflare Pages publish directory and has no build step. `_headers` contains the production HTTP security headers; Cloudflare Pages parses that file during deployment.
+Source files remain in the repository root for authoring. `npm run build` creates the
+allowlisted `dist/` directory, which is the only directory Cloudflare Pages should publish.
+The required Pages settings are Build command `npm run build` and Build output directory
+`dist`. `_headers` remains at the root of `dist/` and contains the production HTTP security
+headers; Cloudflare Pages parses that file during deployment.
 
 `npm run lint` checks the required security-header directives in `_headers` as repository content. Check the deployed site separately with:
 
 ```bash
+npm run check:dist
 npm run check:production
 ```
 
-The dependency-free production check verifies the canonical homepage, HTTP and `www` redirects, security headers on 200 and 404 responses, the custom noindex 404, robots and sitemap contents, and the static PNG favicon. It defaults to `https://alessandrogillies.com`; `SITE_ORIGIN` can override the origin for a controlled check.
+`npm run check:dist` proves that `dist/` contains only the exact runtime allowlist. The
+dependency-free production check verifies the canonical homepage, HTTP and `www` redirects,
+security headers on 200 and 404 responses, the custom noindex 404, robots and sitemap contents,
+the static PNG favicon, and that known engineering files are not publicly served. It defaults to
+`https://alessandrogillies.com`; `SITE_ORIGIN` can override the origin for a controlled check.
 
 If the HTTP-to-HTTPS check fails, enable [Cloudflare Always Use HTTPS](https://developers.cloudflare.com/ssl/edge-certificates/additional-options/always-use-https/) for the zone. Do not add an origin or Pages redirect as a substitute.
 

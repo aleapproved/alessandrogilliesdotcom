@@ -10,6 +10,23 @@ const TIMEOUT_MS = 10_000;
 const NOT_FOUND_PATH = '/__production-check-does-not-exist__/';
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 const INDEXABLE_PATHS = ['/', '/cv/', '/contact/', '/malaphors/'];
+const ENGINEERING_PATHS = [
+  '/package.json',
+  '/package-lock.json',
+  '/README.md',
+  '/playwright.config.js',
+  '/eslint.config.js',
+  '/tests/a11y.spec.js',
+  '/tests/privacy.spec.js',
+  '/scripts/check-production.mjs',
+  '/scripts/install-playwright-webkit-compat.sh',
+  '/.gitignore',
+  '/.nvmrc',
+  '/.htmlhintrc',
+  '/.stylelintrc.json',
+  '/.github/workflows/ci.yml',
+  '/.github/workflows/production.yml',
+];
 
 let canonical;
 try {
@@ -226,6 +243,13 @@ await check('raw homepage HTML exposes the static favicon', async () => {
   const html = await response.text();
   assert(response.status === 200, `expected 200; found ${response.status}`);
   assert(hasStaticFavicon(html), 'static /favicon.png link is missing');
+});
+
+await check('known engineering files are not publicly served', async () => {
+  for (const path of ENGINEERING_PATHS) {
+    const response = await request(canonicalUrl(path), { redirect: 'manual' });
+    assert(response.status === 404, `${path} must return 404; found ${response.status}`);
+  }
 });
 
 if (failureCount > 0) {
