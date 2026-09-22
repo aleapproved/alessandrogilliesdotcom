@@ -111,6 +111,44 @@ test('reset clears every skill without changing the save preference', async ({ p
   await expect(page.locator('#toast')).toHaveClass(/show/);
 });
 
+test('reset removes stale saved state while persistence is off', async ({ page }, testInfo) => {
+  chromiumOnly(testInfo);
+  await page.addInitScript(() => { Math.random = () => 0.99; });
+  await page.goto('/game/');
+
+  const staleState = JSON.stringify({
+    wood: { lvl: 8, xp: 7, next: 26 },
+    mine: { lvl: 9, xp: 6, next: 30 },
+    fish: { lvl: 10, xp: 5, next: 35 },
+  });
+  await page.evaluate(({ stateKey, preferenceKey, value }) => {
+    localStorage.setItem(preferenceKey, 'off');
+    localStorage.setItem(stateKey, value);
+  }, { stateKey: STATE_KEY, preferenceKey: PREFERENCE_KEY, value: staleState });
+  await page.reload();
+
+  await expect(page.locator('#save-progress')).not.toBeChecked();
+  for (const kind of ['wood', 'mine', 'fish']) {
+    await expect(page.locator(`#text-${kind}`)).toHaveText('lvl 1');
+    for (let interaction = 0; interaction < 11; interaction += 1) {
+      await page.locator(`.node[data-kind="${kind}"]`).dispatchEvent('click');
+    }
+    await expect(page.locator(`#text-${kind}`)).toHaveText('lvl 2');
+    expect(await page.locator(`#bar-${kind}`).evaluate(el => parseFloat(el.style.width))).toBeGreaterThan(0);
+  }
+  expect(await page.evaluate(key => localStorage.getItem(key), STATE_KEY)).toBe(staleState);
+
+  await page.locator('#reset-progress').click();
+
+  expect(await page.evaluate(key => localStorage.getItem(key), STATE_KEY)).toBeNull();
+  expect(await page.evaluate(key => localStorage.getItem(key), PREFERENCE_KEY)).toBe('off');
+  for (const kind of ['wood', 'mine', 'fish']) {
+    await expect(page.locator(`#text-${kind}`)).toHaveText('lvl 1');
+    expect(await page.locator(`#bar-${kind}`).evaluate(el => parseFloat(el.style.width))).toBe(0);
+  }
+  await expect(page.locator('#toast')).toHaveText('progress reset');
+});
+
 test('unavailable storage disables saving while gameplay remains usable', async ({ page }, testInfo) => {
   chromiumOnly(testInfo);
   await page.addInitScript(() => {

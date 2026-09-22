@@ -108,7 +108,7 @@
     });
     updateStatsUI();
 
-    if (storageAvailable && persistenceEnabled) {
+    if (storageAvailable) {
       try {
         localStorage.removeItem(STATE_STORAGE_KEY);
       } catch {
