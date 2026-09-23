@@ -11,17 +11,13 @@
   const barFish  = $('#bar-fish');
 
   const toastEl  = $('#toast');
-  const saveProgressCheckbox = $('#save-progress');
-  const resetProgressButton = $('#reset-progress');
 
   // ---- persistence ----
   const STATE_STORAGE_KEY = 'mini-skill-state-v1';
-  const PERSISTENCE_STORAGE_KEY = 'mini-skill-persist-v1';
   const SKILLS = ['wood', 'mine', 'fish'];
   const MIN_LEVEL = 1;
   const MAX_LEVEL = 99;
   let storageAvailable = true;
-  let persistenceEnabled = true;
 
   function normaliseSkill(savedSkill, fallback) {
     const isRecord = savedSkill && typeof savedSkill === 'object' && !Array.isArray(savedSkill);
@@ -39,30 +35,12 @@
     return { lvl, xp: lvl >= MAX_LEVEL ? 0 : xp, next };
   }
 
-  function reflectPersistenceControl(){
-    if (!saveProgressCheckbox) return;
-    saveProgressCheckbox.checked = storageAvailable && persistenceEnabled;
-    saveProgressCheckbox.disabled = !storageAvailable;
-  }
-
   function markStorageUnavailable(){
     storageAvailable = false;
-    persistenceEnabled = false;
-    reflectPersistenceControl();
-  }
-
-  function initialisePersistence(){
-    try {
-      const preference = localStorage.getItem(PERSISTENCE_STORAGE_KEY);
-      persistenceEnabled = preference !== 'off';
-    } catch {
-      markStorageUnavailable();
-    }
-    reflectPersistenceControl();
   }
 
   function load(){
-    if (!storageAvailable || !persistenceEnabled) return;
+    if (!storageAvailable) return;
     let raw;
     try {
       raw = localStorage.getItem(STATE_STORAGE_KEY);
@@ -79,52 +57,12 @@
     }
   }
   function save(){
-    if (!storageAvailable || !persistenceEnabled) return;
+    if (!storageAvailable) return;
     try {
       localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
     } catch {
       markStorageUnavailable();
     }
-  }
-
-  function setPersistenceEnabled(enabled){
-    if (!storageAvailable) return;
-    try {
-      localStorage.setItem(PERSISTENCE_STORAGE_KEY, enabled ? 'on' : 'off');
-      if (!enabled) localStorage.removeItem(STATE_STORAGE_KEY);
-    } catch {
-      markStorageUnavailable();
-      return;
-    }
-
-    persistenceEnabled = enabled;
-    reflectPersistenceControl();
-    if (enabled) save();
-  }
-
-  function resetProgress(){
-    SKILLS.forEach(kind => {
-      state[kind] = { lvl: 1, xp: 0, next: xpForLevel(1) };
-    });
-    updateStatsUI();
-
-    if (storageAvailable) {
-      try {
-        localStorage.removeItem(STATE_STORAGE_KEY);
-      } catch {
-        markStorageUnavailable();
-      }
-    }
-    showToast('progress reset');
-  }
-
-  function initStorageControls(){
-    if (saveProgressCheckbox) {
-      saveProgressCheckbox.addEventListener('change', () => {
-        setPersistenceEnabled(saveProgressCheckbox.checked);
-      });
-    }
-    if (resetProgressButton) resetProgressButton.addEventListener('click', resetProgress);
   }
 
   // In-memory state (no persistence beyond localStorage)
@@ -321,9 +259,6 @@
   function start(){
     arena.innerHTML = '';
 
-    initialisePersistence();
-    initStorageControls();
-    // Load saved progress only when the effective persistence setting is on.
     load();
 
     makeNode(EMOJI.wood, 'tree', 'wood');

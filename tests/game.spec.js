@@ -4,7 +4,6 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/game/');
   await page.evaluate(() => {
     localStorage.removeItem('mini-skill-state-v1');
-    localStorage.removeItem('mini-skill-persist-v1');
   });
   await page.reload();
 });

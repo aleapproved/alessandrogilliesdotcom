@@ -61,10 +61,7 @@ test('theme toggle remains usable when browser storage is unavailable', async ({
   }));
   expect(state.theme === 'dark').toBe(!startedDark);
   expect(state.pressed).toBe(state.theme === 'dark' ? 'true' : 'false');
-  await expect(page.locator('.theme-reset')).toHaveCount(0);
-  await expect(page.locator('.theme-status')).toHaveText(
-    'Theme changed for this page. Browser storage is unavailable.'
-  );
+  await expect(page.locator('.theme-reset, .theme-status')).toHaveCount(0);
   expect(await page.evaluate(() => localStorage.getItem('theme'))).toBeNull();
   expect(pageErrors).toEqual([]);
 });
@@ -86,36 +83,11 @@ test('theme initialization still detects OS theme when storage reads throw', asy
 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.locator('#favicon')).toHaveCount(1);
-  await expect(page.locator('.theme-reset')).toHaveCount(0);
+  await expect(page.locator('.theme-reset, .theme-status')).toHaveCount(0);
   await page.click('#themeToggle');
   await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
-  await expect(page.locator('.theme-status')).toHaveText(
-    'Theme changed for this page. Browser storage is unavailable.'
-  );
+  await expect(page.locator('.theme-reset, .theme-status')).toHaveCount(0);
   expect(pageErrors).toEqual([]);
-});
-
-test('theme notice remains fully visible above content at 320px', async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 640 });
-  await page.goto('/');
-  await page.evaluate(() => localStorage.removeItem('theme'));
-  await page.reload();
-  await page.click('#themeToggle');
-
-  const layout = await page.evaluate(() => {
-    const notice = document.querySelector('.theme-status').getBoundingClientRect();
-    const content = document.querySelector('.wrap').getBoundingClientRect();
-    return {
-      noticeLeft: notice.left,
-      noticeRight: notice.right,
-      noticeBottom: notice.bottom,
-      contentTop: content.top,
-      viewportWidth: window.innerWidth,
-    };
-  });
-  expect(layout.noticeLeft).toBeGreaterThanOrEqual(0);
-  expect(layout.noticeRight).toBeLessThanOrEqual(layout.viewportWidth);
-  expect(layout.noticeBottom).toBeLessThanOrEqual(layout.contentTop);
 });
 
 test('stored light preference overrides a dark OS theme', async ({ page }) => {
@@ -153,20 +125,4 @@ test('contact email uses the restrained link movement and reduced-motion rule', 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const reduced = await email.evaluate(el => getComputedStyle(el).transitionDuration);
   expect(reduced).toBe('0s');
-});
-
-test('new storage controls retain visible keyboard focus indicators', async ({ page }) => {
-  await page.goto('/');
-  await page.evaluate(() => localStorage.setItem('theme', 'dark'));
-  await page.reload();
-  const themeReset = page.locator('.theme-reset');
-  await themeReset.focus();
-  expect(await themeReset.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe('none');
-
-  await page.goto('/game/');
-  for (const selector of ['#save-progress', '#reset-progress']) {
-    const control = page.locator(selector);
-    await control.focus();
-    expect(await control.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe('none');
-  }
 });

@@ -67,8 +67,6 @@
       if (btn) {
         btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
         btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-        const icon = btn.querySelector('.theme-toggle__icon');
-        if (icon) icon.textContent = isDark ? '🌕' : '☀️';
       }
     });
   };

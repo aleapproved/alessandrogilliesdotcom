@@ -36,13 +36,12 @@ The setup is only needed on hosts with this WebKit dependency mismatch. It does 
 
 ## Browser-only state and favicons
 
-The site uses three browser-storage values:
+The site uses two browser-storage values:
 
 - `theme` stores an explicit light or dark theme choice.
-- `mini-skill-persist-v1` stores whether the visitor wants game progress saved.
-- `mini-skill-state-v1` stores game progress when saving is on.
+- `mini-skill-state-v1` stores game progress automatically.
 
-These values stay in the visitor's browser and the site does not transmit them. The theme control can forget its saved choice, and the game can disable saving or reset progress.
+These values stay in the visitor's browser and the site does not transmit them. The theme toggle saves the selected light or dark theme; without a saved choice, the site follows the device setting. Game progress saves automatically and is restored when the page is opened again.
 
 Raw HTML exposes the stable 96×96 `/favicon.png` for crawlers and browsers without JavaScript. JavaScript adds a separate theme-sensitive, page-specific SVG favicon at runtime.
 
